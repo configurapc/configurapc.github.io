@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ConfiguraPC: monta tu PC con tu presupuesto</title>
+  <meta name="description" content="Dinos para qué quieres el PC y cuánto quieres gastar. Te proponemos piezas compatibles que no se pasan de tu presupuesto, con precios de PcComponentes, Coolmod, NeoByte, Alternate y más.">
+  <meta name="theme-color" content="#F3F4F6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0C0E12" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <!-- dominio:inicio (scripts/dominio.mjs rellena las URL absolutas) -->
+  <link rel="canonical" href="./">
+  <meta property="og:url" content="./">
+  <meta property="og:image" content="assets/og.png">
+  <!-- dominio:fin -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:site_name" content="ConfiguraPC">
+  <meta property="og:title" content="ConfiguraPC: monta tu PC sin pasarte de presupuesto">
+  <meta property="og:description" content="Piezas compatibles, precios reales de tiendas españolas y FPS estimados en juegos.">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"ConfiguraPC","applicationCategory":"UtilitiesApplication","operatingSystem":"Web","inLanguage":"es","description":"Configurador de PC por presupuesto con precios de tiendas españolas, compatibilidad y FPS estimados.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/config.js" defer></script>
+  <script src="data/components.js" defer></script>
+  <script src="assets/engine.js" defer></script>
+  <script src="assets/hwdb.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Saltar al contenido</a>
+
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="brand" href="./" aria-label="ConfiguraPC, inicio">
+        <svg viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="2" width="24" height="24" rx="7" fill="currentColor"/><path d="M9 9h10v10H9z" fill="none" stroke="var(--on-accent)" stroke-width="2"/><path d="M12 12h4v4h-4z" fill="var(--on-accent)"/></svg>
+        <span>ConfiguraPC</span>
+      </a>
+      <nav class="nav" aria-label="Secciones">
+        <button class="nav-btn" type="button" data-view="build" aria-current="page">Configurar</button>
+        <button class="nav-btn" type="button" data-view="upgrade">Mejorar<span class="nav-long"> mi PC</span></button>
+        <button class="nav-btn" type="button" data-view="laptops">Portátiles</button>
+        <button class="nav-btn" type="button" data-view="catalog">Precios</button>
+        <button class="nav-btn" type="button" data-view="saved">Guardadas <span class="nav-count" id="saved-count"></span></button>
+      </nav>
+      <div class="top-tools">
+        <span class="updated" id="updated-badge">Cargando precios…</span>
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Cambiar a tema oscuro"></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <p class="load-error wrap" id="load-error" role="alert" hidden></p>
+
+    <!-- CONFIGURAR -->
+    <section class="view" id="view-build" aria-labelledby="h-build">
+      <div class="wrap" id="wizard">
+        <div class="wiz-head">
+          <h1 id="h-build">Monta tu PC sin pasarte de presupuesto</h1>
+          <p class="lead">Tres preguntas y te proponemos piezas compatibles con precios reales de tiendas españolas. Luego puedes cambiar cualquier pieza.</p>
+        </div>
+        <ol class="steps" id="wiz-steps" aria-label="Pasos"></ol>
+        <form class="wiz-body" id="wiz-form" novalidate></form>
+        <div class="wiz-bar" id="wiz-bar"></div>
+      </div>
+      <div class="wrap" id="editor" hidden></div>
+    </section>
+
+    <!-- MEJORAR -->
+    <section class="view" id="view-upgrade" aria-labelledby="h-upgrade" hidden>
+      <div class="wrap">
+        <div class="wiz-head">
+          <h1 id="h-upgrade">Mejora el PC que ya tienes</h1>
+          <p class="lead">Reconocemos tus piezas y te decimos qué cambiar primero para notar más diferencia con el dinero que quieras gastar.</p>
+        </div>
+        <div id="upgrade"></div>
+      </div>
+    </section>
+
+    <!-- PORTÁTILES -->
+    <section class="view" id="view-laptops" aria-labelledby="h-laptops" hidden>
+      <div class="wrap">
+        <div class="wiz-head">
+          <h1 id="h-laptops">¿Portátil o sobremesa?</h1>
+          <p class="lead">Un portátil te lo llevas a todas partes, pero cuesta más por el mismo rendimiento y casi no se puede mejorar. Aquí ves las diferencias y te ayudamos a encontrar uno bueno para tu presupuesto.</p>
+        </div>
+        <div id="laptops"></div>
+      </div>
+    </section>
+
+    <!-- PRECIOS -->
+    <section class="view" id="view-catalog" aria-labelledby="h-catalog" hidden>
+      <div class="wrap">
+        <div class="wiz-head">
+          <h1 id="h-catalog">Precios por tienda</h1>
+          <p class="lead">Todas las piezas que usamos, con el precio en cada tienda y el día en que lo comprobamos.</p>
+        </div>
+        <div id="market"></div>
+        <div id="catalog"></div>
+      </div>
+    </section>
+
+    <!-- GUARDADAS -->
+    <section class="view" id="view-saved" aria-labelledby="h-saved" hidden>
+      <div class="wrap">
+        <div class="wiz-head">
+          <h1 id="h-saved">Configuraciones guardadas</h1>
+          <p class="lead">Se guardan solo en este navegador. El total se recalcula con los precios de hoy.</p>
+        </div>
+        <div id="saved"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="wrap" id="ad-footer"></div>
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <p><strong>De dónde salen los precios.</strong> Revisamos cada semana las fichas de PcComponentes y el comparador de Geeknetic, que recoge Coolmod, NeoByte, Alternate, Caseking y otras tiendas. Los precios con fecha se comprobaron ese día; los marcados «sin confirmar» vienen de listados sin fecha. Confírmalo en la tienda antes de pagar.</p>
+      <p><strong>Rendimiento.</strong> Los niveles de juego son orientativos y se basan en análisis publicados, no en pruebas propias.</p>
+      <p id="privacy"><strong>Privacidad.</strong> Sin cookies, sin analítica y sin cuentas. Lo que detectamos de tu PC no sale de tu navegador.</p>
+      <p><strong>Guías.</strong> <a href="pc/index.html">Los mejores PC por presupuesto</a>, actualizados cada semana con los precios del día.</p>
+      <div id="sources"></div>
+    </div>
+  </footer>
+
+  <dialog class="sheet" id="swap" aria-labelledby="swap-title"></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <div class="mbar" id="mbar" hidden></div>
+  <article class="print-doc" id="print-doc" aria-hidden="true"></article>
+</body>
+</html>

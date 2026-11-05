@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel de precios | ConfiguraPC</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/matcher.js" defer></script>
+  <script src="assets/admin.js" defer></script>
+</head>
+<body>
+  <header class="top"><div class="wrap top-in"><a class="brand" href="./"><span>ConfiguraPC</span></a><span class="updated">Panel de precios (solo en tu equipo)</span></div></header>
+  <main id="main" class="wrap adm">
+    <div class="wiz-head">
+      <h1>Panel de precios</h1>
+      <p class="lead">Tres formas de meter precios en bloque, de más a menos automática. Todo se valida, se guarda con la fecha de hoy y regenera los datos y las guías.</p>
+    </div>
+    <div class="adm-stats" id="stats"></div>
+
+    <nav class="adm-tabs" aria-label="Herramientas">
+      <button type="button" class="chip-btn" data-tab="feed" aria-pressed="true">1. Catálogo de una tienda</button>
+      <button type="button" class="chip-btn" data-tab="cap" aria-pressed="false">2. Capturar desde la web</button>
+      <button type="button" class="chip-btn" data-tab="csv" aria-pressed="false">3. Pegar CSV</button>
+      <button type="button" class="chip-btn" data-tab="new" aria-pressed="false">Piezas nuevas</button>
+      <button type="button" class="chip-btn" data-tab="list" aria-pressed="false">Editar una a una</button>
+    </nav>
+
+    <section class="panel adm-sec" data-sec="feed">
+      <h2>Importar el catálogo completo de una tienda</h2>
+      <p class="hint">Sube el archivo de productos (feed) que te da la tienda o la red de afiliados (Awin, Google Merchant o un CSV propio). Reconoce las piezas por enlace, EAN o referencia del fabricante y deja aparte las que solo coinciden por nombre y las que son nuevas.</p>
+      <div class="adm-inline">
+        <label class="input-wrap"><span>Archivo CSV</span><input type="file" id="feed-file" accept=".csv,.txt,.tsv" class="input"></label>
+        <label class="input-wrap"><span>Tienda (si el archivo no la indica)</span><select id="feed-store" class="input"><option value="">Detectar sola</option></select></label>
+      </div>
+      <div class="adm-inline">
+        <button type="button" class="btn" id="feed-check">Analizar sin guardar</button>
+        <button type="button" class="btn btn-primary" id="feed-apply">Aplicar los reconocidos</button>
+        <button type="button" class="btn btn-ghost" id="load-rev">Revisar coincidencias por nombre</button>
+        <button type="button" class="btn btn-ghost" id="load-new">Ver productos nuevos</button>
+      </div>
+    </section>
+
+    <section class="panel adm-sec" data-sec="cap" hidden>
+      <h2>Capturar precios mientras navegas</h2>
+      <ol class="how">
+        <li><span>Arrastra este botón a la barra de marcadores de tu navegador: <a class="btn btn-sm btn-primary" id="bookmarklet" href="#">Capturar precio</a></span></li>
+        <li><span>Abre la ficha de un producto en cualquier tienda y pulsa el marcador. Copia el nombre, el precio, el enlace y el EAN de la página.</span></li>
+        <li><span>Repite con todos los que quieras y pega aquí todo junto (una línea por producto).</span></li>
+      </ol>
+      <textarea class="paste" id="cap-text" spellcheck="false" placeholder='{"n":"AMD Ryzen 5 5500","p":"99.90","u":"https://www.pccomponentes.com/…","e":"0730143314442","m":"","h":"www.pccomponentes.com"}'></textarea>
+      <div class="adm-inline"><button type="button" class="btn btn-primary" id="cap-go">Reconocer</button></div>
+      <div id="cap-out"></div>
+    </section>
+
+    <section class="panel adm-sec" data-sec="csv" hidden>
+      <h2>Pegar precios en CSV</h2>
+      <p class="hint">Una línea por precio: <b>id;tienda;precio;url;ean</b>. La URL solo hace falta la primera vez que añades una tienda a una pieza; el EAN es opcional y sirve para reconocerla sola la próxima vez.</p>
+      <textarea class="paste" id="csv" spellcheck="false" placeholder="gpu-rtx5060;pcc;389,90&#10;ram-ddr4-16;amazon;49,99;https://www.amazon.es/dp/..."></textarea>
+      <div class="adm-inline"><button type="button" class="btn btn-primary" id="csv-go">Importar</button></div>
+    </section>
+
+    <section class="panel adm-sec" data-sec="new" hidden>
+      <h2>Añadir piezas nuevas</h2>
+      <p class="hint">Columnas: <b>categoria;nombre;tienda;precio;url;ean;mpn;especificaciones;por_que</b>. Las especificaciones van como <b>clave=valor|clave=valor</b>. Procesadores y gráficas se completan solos a partir del nombre.</p>
+      <details class="adm-help"><summary>Qué especificaciones pide cada categoría</summary><ul id="spec-help"></ul></details>
+      <textarea class="paste" id="new-csv" spellcheck="false" placeholder="gpu;Gigabyte GeForce RTX 5060 Ti EAGLE MAX OC 16GB;pcc;553,99;https://www.pccomponentes.com/...;4719331356644;;length=260;&#10;mobo;MSI PRO B650M-P;pcc;109,90;https://www.pccomponentes.com/...;;;socket=AM5|chipset=B650|mem=DDR5|form=mATX|wifi=no|m2=2;"></textarea>
+      <div class="adm-inline"><button type="button" class="btn" id="new-check">Comprobar</button><button type="button" class="btn btn-primary" id="new-save">Añadir al catálogo</button></div>
+    </section>
+
+    <section class="adm-sec" data-sec="list" hidden>
+      <div class="cat-tools">
+        <div class="search"><input type="search" id="q" placeholder="Buscar pieza o id" autocomplete="off" aria-label="Buscar pieza"></div>
+        <label class="switch adm-sw"><span><b>Solo pendientes</b><small>Sin fecha, de hace más de 7 días o en una sola tienda</small></span><input type="checkbox" id="pend" role="switch" checked></label>
+      </div>
+      <div id="list" class="adm-list"></div>
+    </section>
+
+    <pre class="adm-log" id="log" aria-live="polite"></pre>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
