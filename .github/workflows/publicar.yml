@@ -31,7 +31,7 @@ jobs:
         run: |
           node scripts/dominio.mjs "https://${{ github.repository_owner }}.github.io"
           mkdir _site
-          cp -r index.html 404.html favicon.svg robots.txt manifest.webmanifest sw.js assets data pc _site/
+          cp -r index.html 404.html favicon.svg robots.txt manifest.webmanifest sw.js assets data pc privacidad.html _site/
           [ -f ads.txt ] && cp ads.txt _site/ || true
           [ -f sitemap.xml ] && cp sitemap.xml _site/ || true
           rm -f _site/assets/admin.js _site/assets/matcher.js
