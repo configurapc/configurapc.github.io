@@ -765,7 +765,7 @@ function initAds() {
     sc.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(CFG.client);
     document.head.append(sc);
     const pr = $('#privacy');
-    if (pr) { clear(pr).append(h('strong', { text: 'Privacidad.' }), ' Sin cuentas ni analítica propia. Mostramos anuncios de Google, que usan cookies solo si las aceptas en el aviso. Lo que detectamos de tu PC no sale de tu navegador.'); }
+    if (pr) { clear(pr).append(h('strong', { text: 'Privacidad.' }), ' Sin cuentas ni analítica propia. Mostramos anuncios de Google, que usan cookies solo si las aceptas en el aviso. Lo que detectamos de tu PC no sale de tu navegador. ', h('a', { href: 'privacidad.html', text: 'Política de privacidad' }), '.'); }
   }
   const foot = $('#ad-footer'); if (foot) { clear(foot); const a = adSlot('footer'); if (a) foot.append(a); }
   const cat = $('#catalog'); if (cat) { const a = adSlot('catalog'); if (a) cat.append(a); }
