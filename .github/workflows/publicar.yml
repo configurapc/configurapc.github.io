@@ -22,6 +22,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Aplicar los últimos precios descargados (rama datos)
+        run: |
+          if git fetch --depth=1 origin datos 2>/dev/null; then
+            git show origin/datos:_datos/geeknetic.json > /tmp/geeknetic.json
+            node scripts/actualizar-geeknetic.mjs /tmp/geeknetic.json --nuevas --guardar
+          else
+            echo "Sin descarga de precios: se publica el catálogo tal cual"
+          fi
       - name: Validar datos y probar el motor
         run: |
           node scripts/validate-data.mjs
