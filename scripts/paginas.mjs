@@ -2,6 +2,7 @@
 // Se ejecuta solo al guardar precios (scripts/precio.mjs) y a mano con: node scripts/paginas.mjs
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs';
 import '../assets/engine.js';
+import { guideExtra } from './textos-guias.mjs';
 const E = globalThis.PCEngine;
 
 const root = new URL('../', import.meta.url);
@@ -62,7 +63,7 @@ function page(p, rec, others) {
 </head>
 <body>
   <header class="top"><div class="wrap top-in"><a class="brand" href="../index.html"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="2" width="24" height="24" rx="7" fill="currentColor"/><path d="M9 9h10v10H9z" fill="none" stroke="#fff" stroke-width="2"/><path d="M12 12h4v4h-4z" fill="#fff"/></svg><span>ConfiguraPC</span></a>
-  <nav class="nav" aria-label="Secciones"><a class="nav-btn" href="../index.html">Configurador</a><a class="nav-btn" href="index.html" aria-current="page">Guías</a></nav></div></header>
+  <nav class="nav" aria-label="Secciones"><a class="nav-btn" href="../index.html">Configurador</a><a class="nav-btn" href="index.html" aria-current="page">Guías</a><a class="nav-btn" href="../articulos/index.html">Artículos</a></nav></div></header>
   <main id="main" class="wrap pg">
     <p class="hint"><a href="index.html">Guías por presupuesto</a></p>
     <h1>${esc(p.title)}</h1>
@@ -74,6 +75,7 @@ ${rows}
     </tbody></table></div>
     ${games ? `<h2>FPS estimados a ${esc(res)}</h2><div class="pg-table"><table class="cmp"><tbody>${games}</tbody></table></div>
     <p class="games-note">Estimación orientativa (±20 %), sin DLSS/FSR. Calibrada con la media de TechPowerUp para la RTX 5070; el peso de cada juego es aproximado.</p>` : ''}
+    ${guideExtra(p, b, rec, E)}
     <h2>Otras guías</h2><ul class="pg-links">${links}</ul>
     <p class="hint">Precios recogidos de las tiendas indicadas; cambian a diario, confírmalos antes de comprar. Sistema operativo no incluido.</p>
   </main>
@@ -104,7 +106,7 @@ writeFileSync(new URL('index.html', outDir), `<!DOCTYPE html>
 </head>
 <body>
   <header class="top"><div class="wrap top-in"><a class="brand" href="../index.html"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="2" width="24" height="24" rx="7" fill="currentColor"/><path d="M9 9h10v10H9z" fill="none" stroke="#fff" stroke-width="2"/><path d="M12 12h4v4h-4z" fill="#fff"/></svg><span>ConfiguraPC</span></a>
-  <nav class="nav" aria-label="Secciones"><a class="nav-btn" href="../index.html">Configurador</a><a class="nav-btn" href="index.html" aria-current="page">Guías</a></nav></div></header>
+  <nav class="nav" aria-label="Secciones"><a class="nav-btn" href="../index.html">Configurador</a><a class="nav-btn" href="index.html" aria-current="page">Guías</a><a class="nav-btn" href="../articulos/index.html">Artículos</a></nav></div></header>
   <main id="main" class="wrap pg">
     <h1>Los mejores PC por presupuesto</h1>
     <p class="lead">Precios del ${esc(fmtDate(raw.updated))}. Cada configuración es compatible, no se pasa del presupuesto y se puede abrir en el configurador para cambiar piezas.</p>
