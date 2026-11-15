@@ -4,11 +4,21 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { parseHTML } from 'linkedom';
+import '../assets/hwdb.js';
+const HW = globalThis.PCHW;
 
 const OUT = process.argv[2] || '_datos/geeknetic.json';
 const BASE = 'https://www.geeknetic.es';
-const CATS = { procesadores: 3, 'placas-base': 4, 'tarjetas-graficas': 4, 'memoria-ram': 3, ssds: 3, 'fuentes-de-alimentacion': 3,
-  'cajas-de-ordenador': 3, disipadores: 2, 'kits-de-refrigeracion-liquida': 2, monitores: 3, ratones: 2, teclados: 2, auriculares: 2, portatiles: 4 };
+// Máximo de productos por categoría (los que venden más tiendas primero)
+const CATS = { procesadores: 150, 'placas-base': 300, 'tarjetas-graficas': 300, 'memoria-ram': 200, ssds: 200, 'fuentes-de-alimentacion': 200,
+  'cajas-de-ordenador': 200, disipadores: 120, 'kits-de-refrigeracion-liquida': 100, monitores: 250, ratones: 100, teclados: 100, auriculares: 100, portatiles: 300 };
+const MAX_PAGES = 60;
+// Qué productos interesan: procesadores y gráficas de escritorio reconocidos; del resto, los que venden al menos 2 tiendas.
+function wanted(c, name, off) {
+  if (c === 'procesadores') { const m = HW.matchCpu(name); return !!(m?.exact && ['AM4', 'AM5', 'LGA1700', 'LGA1851'].includes(m.platform)) && !/tray|bandeja|mpk|\(t\)|oem/i.test(name); }
+  if (c === 'tarjetas-graficas') { const g = HW.matchGpu(name); return !!(g && !g.integrated) && !/\b(pro \d{4}|quadro|rtx a\d|radeon pro)\b/i.test(name); }
+  return off >= 2;
+}
 const KEEP = ['EAN', 'MPN', 'ID de GEEKNETIC', 'Marca', 'Socket', 'Núcleos', 'Hilos de Procesamiento Concurrentes', 'TDP', 'Tipo de Gráficos Integrados', 'Tipo de Embalaje', 'Serie',
   'Chipset', 'Factor de Forma', 'Tipo de Memoria', 'Puertos M.2 Totales', 'Wi-Fi', 'Modelo de GPU', 'Tamaño de la Memoria', 'Longitud', 'Marca de GPU',
   'Capacidad Total', 'Número de Módulos', 'Frecuencia', 'Latencia CAS', 'Formato', 'Capacidad', 'Interfaz', 'Conector', 'Potencia', 'Certificación de Eficiencia 80 Plus', 'Modularidad',
@@ -33,20 +43,26 @@ async function get(path) {
 }
 
 const list = new Map();
-for (const [c, pages] of Object.entries(CATS)) {
-  for (let p = 1; p <= pages; p++) {
-    const path = `/comparador-precios/${c}/order-by:popular-desc/` + (p > 1 ? p + '/' : '');
+for (const [c, cap] of Object.entries(CATS)) {
+  const found = [];
+  let pages = 1;
+  for (let p = 1; p <= Math.min(pages, MAX_PAGES); p++) {
+    const path = `/comparador-precios/${c}/` + (p > 1 ? p + '/' : '');
     try {
-      const { document } = parseHTML(await get(path));
+      const html = await get(path);
+      if (p === 1) pages = Math.max(1, ...[...html.matchAll(new RegExp(`/comparador-precios/${c}/(\\d+)/`, 'g'))].map((m) => +m[1]));
+      const { document } = parseHTML(html);
       for (const a of document.querySelectorAll('article.product')) {
-        const h = a.querySelector('h3 a')?.getAttribute('href');
+        const h = a.querySelector('h3 a')?.getAttribute('href'); const name = a.querySelector('h3 a')?.textContent.trim() || '';
         const off = parseInt(a.querySelector('.product-button')?.textContent) || 0;
-        if (h && off > 0 && !list.has(h)) list.set(h, c);
+        if (h && off > 0 && wanted(c, name, off)) found.push({ h, off });
       }
     } catch (e) { console.warn(String(e)); }
-    await sleep(400);
+    await sleep(350);
   }
-  console.log(c, 'acumulado', list.size);
+  found.sort((a, b) => b.off - a.off);
+  for (const f of found.slice(0, cap)) if (!list.has(f.h)) list.set(f.h, c);
+  console.log(c, pages, 'páginas,', found.length, 'interesantes; acumulado', list.size);
 }
 
 const out = [];
