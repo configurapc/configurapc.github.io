@@ -14,7 +14,8 @@ html = html.replace(/<!-- dominio:inicio[\s\S]*?<!-- dominio:fin -->/, `<!-- dom
   <!-- dominio:fin -->`);
 writeFileSync(f('index.html'), html);
 const today = new Date().toISOString().slice(0, 10);
-const pages = existsSync(f('pc')) ? readdirSync(f('pc')).filter(x => x.endsWith('.html')).map(x => root + 'pc/' + (x === 'index.html' ? '' : x.replace(/\.html$/, ''))) : [];
+const dirPages = (d) => existsSync(f(d)) ? readdirSync(f(d)).filter(x => x.endsWith('.html')).map(x => root + d + '/' + (x === 'index.html' ? '' : x.replace(/\.html$/, ''))) : [];
+const pages = [...dirPages('pc'), ...dirPages('articulos'), ...['sobre', 'contacto', 'privacidad'].filter(x => existsSync(f(x + '.html'))).map(x => root + x)];
 writeFileSync(f('sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` + [root, ...pages].map(u => `  <url><loc>${u}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq></url>`).join('\n') + `\n</urlset>\n`);
 let robots = readFileSync(f('robots.txt'), 'utf8').replace(/^Sitemap:.*\n?/m, '').trimEnd();
 writeFileSync(f('robots.txt'), robots + `\nSitemap: ${root}sitemap.xml\n`);
