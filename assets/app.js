@@ -287,7 +287,7 @@ function renderMeta() {
 
 // ---------- navegación ----------
 function initNav() {
-  for (const b of $('.nav-btn[data-view]')) b.addEventListener('click', () => setView(b.dataset.view));
+  for (const b of $$('.nav-btn[data-view]')) b.addEventListener('click', () => setView(b.dataset.view));
 }
 function setView(v, focus = true) {
   for (const b of $$('.nav-btn')) { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }
