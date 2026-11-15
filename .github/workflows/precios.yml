@@ -1,0 +1,26 @@
+# Descarga precios de Geeknetic (varias tiendas) y los deja en la rama «datos». No toca la web publicada.
+name: Descargar precios
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  precios:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm i --no-save linkedom@0.18
+      - run: node scripts/scrape-geeknetic.mjs /tmp/geeknetic.json
+      - name: Guardar en la rama datos
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan datos
+          git rm -rf --cached . > /dev/null
+          mkdir -p _datos && cp /tmp/geeknetic.json _datos/geeknetic.json
+          git add -f _datos/geeknetic.json
+          git commit -m "Precios de Geeknetic $(date +%F)"
+          git push -f origin datos
