@@ -388,6 +388,11 @@ function recommend(dbRaw, q0) {
   if (q.gpuBrand === 'amd') gpus = gpus.filter(g => /Radeon/.test(g.name));
   if (q.use === 'ai') { const nv = gpus.filter(g => /RTX/.test(g.name)); if (nv.length && q.gpuBrand !== 'amd') gpus = nv; }
 
+  // Con catálogos grandes hay muchos modelos del mismo chip: para buscar combinaciones basta el más barato de cada uno
+  // (la lista para cambiar pieza sigue mostrándolos todos).
+  const dedupe = (list, key) => { const m = new Map(); for (const it of list) { const k = key(it); const cur = m.get(k); if (!cur || priceOf(it, sp, st) < priceOf(cur, sp, st)) m.set(k, it); } return [...m.values()]; };
+  cpus = dedupe(cpus, c => [c.specs.socket, c.perf.gaming, c.perf.work, c.specs.igpu, c.specs.cooler].join('|'));
+  gpus = dedupe(gpus, g => (g.specs.chip || g.name) + '|' + g.specs.vram);
   const gpuOpts = own.gpu ? [own.gpu] : use.needGpu ? gpus : [null, ...gpus];
   const ramSizes = [...new Set(db.byCat.ram.map(r => r.specs.size))].filter(s => s >= use.ramMin).sort((a, b) => a - b);
   if (q.future && !ramSizes.length) ramSizes.push(32);
